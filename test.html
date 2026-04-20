@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emotion Detector</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6366f1;
@@ -73,9 +74,19 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -50px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
         }
 
         .container {
@@ -91,6 +102,23 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             transform: translateY(0);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        .container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .container::-webkit-scrollbar-thumb {
+            background: rgba(167, 139, 250, 0.5);
+            border-radius: 10px;
         }
 
         .container:hover {
@@ -121,15 +149,17 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             background: #000;
             aspect-ratio: 4/3;
+            flex-shrink: 0;
         }
 
         #video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scaleX(-1); /* Mirror effect */
+            transform: scaleX(-1);
+            /* Mirror effect */
         }
-        
+
         .scan-line {
             position: absolute;
             top: 0;
@@ -143,16 +173,29 @@
         }
 
         @keyframes scan {
-            0% { top: 0; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 100%; opacity: 0; }
+            0% {
+                top: 0;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
         }
 
         .video-overlay {
             position: absolute;
             inset: 0;
-            border: 2px solid rgba(255,255,255,0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             pointer-events: none;
         }
@@ -170,6 +213,7 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         button::before {
@@ -179,7 +223,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.7s ease;
         }
 
@@ -214,6 +258,7 @@
             opacity: 0;
             transform: translateY(10px);
             transition: all 0.4s ease;
+            flex-shrink: 0;
         }
 
         .result-container.show {
@@ -226,6 +271,7 @@
             font-weight: 600;
             text-transform: capitalize;
             color: #f1f5f9;
+            margin-bottom: -5px;
         }
 
         #result-emoji {
@@ -235,15 +281,20 @@
         }
 
         @keyframes popIn {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         .spinner {
             display: none;
             width: 24px;
             height: 24px;
-            border: 3px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: #fff;
             animation: spin 1s ease-in-out infinite;
@@ -251,7 +302,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .btn-content {
@@ -264,8 +317,64 @@
         .hidden {
             display: none !important;
         }
+
+        /* Playlist Styles */
+        .songs-container {
+            margin-top: 1rem;
+            text-align: left;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 5px;
+            flex-shrink: 0;
+            padding-bottom: 20px;
+        }
+
+        .songs-container.show {
+            display: flex;
+            animation: popIn 0.5s ease;
+        }
+
+        .song-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 12px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.2s;
+        }
+
+        .song-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .song-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 55%;
+            color: #f1f5f9;
+        }
+
+        audio {
+            height: 30px;
+            max-width: 130px;
+        }
+
+        audio::-webkit-media-controls-panel {
+            background-color: #cbd5e1;
+        }
+
+        .songs-container::-webkit-scrollbar {
+            width: 0px;
+        }
     </style>
 </head>
+
 <body>
 
     <!-- Background Animations -->
@@ -285,7 +394,8 @@
 
         <button id="capture-btn" onclick="captureAndAnalyze()">
             <div class="btn-content" id="btn-text">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                     <circle cx="12" cy="13" r="4"></circle>
                 </svg>
@@ -295,9 +405,13 @@
         </button>
 
         <div class="result-container" id="result-container">
-            <div id="result-text"></div>
-            <div id="result-emoji"></div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div id="result-emoji"></div>
+                <div id="result-text"></div>
+            </div>
         </div>
+
+        <div id="songs-list" class="songs-container"></div>
     </div>
 
     <!-- Hidden canvas for capturing images -->
@@ -327,8 +441,8 @@
         // Access camera
         async function setupCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } } 
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }
                 });
                 video.srcObject = stream;
             } catch (error) {
@@ -337,7 +451,7 @@
                 resultContainer.classList.add("show");
             }
         }
-        
+
         setupCamera();
 
         function setUIState(analyzing) {
@@ -347,6 +461,7 @@
                 spinner.style.display = "block";
                 scanLine.style.display = "block";
                 resultContainer.classList.remove("show");
+                document.getElementById("songs-list").classList.remove("show");
             } else {
                 btnText.classList.remove("hidden");
                 spinner.style.display = "none";
@@ -379,11 +494,11 @@
                     });
 
                     if (!response.ok) throw new Error("Network response was not ok");
-                    
+
                     const data = await response.json();
-                    
+
                     setTimeout(() => {
-                        displayResult(data.emotion);
+                        displayResult(data.emotion, data.songs);
                         setUIState(false);
                     }, 500);
 
@@ -397,17 +512,68 @@
             }, "image/jpeg", 0.9);
         }
 
-        function displayResult(emotion) {
-            const container = document.getElementById("result-emoji");
-            // Clone to retrigger animation
-            const newEmoji = container.cloneNode(true);
-            container.parentNode.replaceChild(newEmoji, container);
+        function displayResult(emotion, songs) {
+            const emojiEl = document.getElementById("result-emoji");
 
-            document.getElementById("result-text").innerText = emotion || "Unknown";
-            newEmoji.innerText = emojiMap[emotion?.toLowerCase()] || "🤔";
-            
+            // reset animation
+            emojiEl.innerText = "";
+            setTimeout(() => {
+                emojiEl.innerText = emojiMap[emotion?.toLowerCase()] || "🤔";
+            }, 10);
+
+            document.getElementById("result-text").innerText =
+                "Emotion: " + emotion;
+
             resultContainer.classList.add("show");
+
+            const songsList = document.getElementById("songs-list");
+            songsList.innerHTML = "";
+
+            if (songs && songs.length > 0) {
+
+                const title = document.createElement("h3");
+                title.innerText = "🎵 Suggested Songs";
+                title.style.marginBottom = "10px";
+                songsList.appendChild(title);
+
+                songs.forEach(song => {
+
+                    const item = document.createElement("div");
+                    item.className = "song-item";
+
+                    const titleSpan = document.createElement("span");
+                    titleSpan.className = "song-title";
+                    titleSpan.innerText = song.replace(".mp3", "");
+
+                    const audio = document.createElement("audio");
+                    audio.controls = true;
+
+                    const src = document.createElement("source");
+                    src.src = `http://127.0.0.1:5000/music/${emotion.toLowerCase()}/${encodeURIComponent(song)}`;
+                    src.type = "audio/mpeg";
+
+                    audio.appendChild(src);
+
+                    // 🔥 AUTO PLAY FIRST SONG
+                    if (songs.indexOf(song) === 0) {
+                        audio.autoplay = true;
+                    }
+
+                    item.appendChild(titleSpan);
+                    item.appendChild(audio);
+
+                    songsList.appendChild(item);
+                });
+
+                songsList.classList.add("show");
+
+                // Scroll to top of songs list slightly
+                setTimeout(() => {
+                    songsList.scrollTop = 0;
+                }, 100);
+            }
         }
     </script>
 </body>
+
 </html>
