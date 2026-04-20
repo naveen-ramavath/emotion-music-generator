@@ -1,13 +1,12 @@
 import os
 import random
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from utils import predict_emotion
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
-# path to music folder
 MUSIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'music'))
 
 @app.route('/')
@@ -24,38 +23,31 @@ def predict():
 
     emotion = predict_emotion(image)
 
-    songs = []
-
+    video = None
     if emotion and emotion not in ["Invalid image", "No face detected"]:
-        emotion_dir = os.path.join(MUSIC_DIR, emotion.lower())
-        print("DEBUG MUSIC_DIR:", MUSIC_DIR)
-        print("DEBUG emotion_dir:", emotion_dir)
-        print("DEBUG exists:", os.path.exists(emotion_dir))
+        # Find the links.txt file inside the correct emotion folder
+        links_file = os.path.join(MUSIC_DIR, emotion.lower(), "links.txt")
+        
+        if os.path.exists(links_file):
+            with open(links_file, "r") as f:
+                # Read lines, strip whitespace, and filter out empty lines
+                links = [line.strip() for line in f.readlines() if line.strip()]
+            
+            if links:
+                video = random.choice(links)
+                # Auto-play via URL param
+                if "?" in video:
+                    if "&autoplay=1" not in video:
+                        video += "&autoplay=1"
+                else:
+                    video += "?autoplay=1"
 
-        if os.path.exists(emotion_dir):
-            try:
-                songs = [
-                    f for f in os.listdir(emotion_dir)
-                    if f.endswith(".mp3")
-                ]
-                print("DEBUG songs count:", len(songs))
-                # 🔥 optional: shuffle songs
-                random.shuffle(songs)
-            except Exception as e:
-                print(f"Error reading music directory: {e}")
-
-    print("DEBUG Returning songs:", songs)
+    print("DEBUG Returning video:", video)
+    
     return jsonify({
         "emotion": emotion,
-        "songs": songs
+        "video": video
     })
-
-
-@app.route('/music/<emotion>/<path:filename>')
-def serve_music(emotion, filename):
-    emotion_dir = os.path.join(MUSIC_DIR, emotion.lower())
-    return send_from_directory(emotion_dir, filename)
-
 
 if __name__ == '__main__':
     app.run(debug=True)

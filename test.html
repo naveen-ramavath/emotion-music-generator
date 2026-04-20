@@ -498,7 +498,7 @@
                     const data = await response.json();
 
                     setTimeout(() => {
-                        displayResult(data.emotion, data.songs);
+                        displayResult(data.emotion, data.video);
                         setUIState(false);
                     }, 500);
 
@@ -512,7 +512,7 @@
             }, "image/jpeg", 0.9);
         }
 
-        function displayResult(emotion, songs) {
+        function displayResult(emotion, videoUrl) {
             const emojiEl = document.getElementById("result-emoji");
 
             // reset animation
@@ -529,41 +529,25 @@
             const songsList = document.getElementById("songs-list");
             songsList.innerHTML = "";
 
-            if (songs && songs.length > 0) {
+            if (videoUrl) {
 
                 const title = document.createElement("h3");
-                title.innerText = "🎵 Suggested Songs";
-                title.style.marginBottom = "10px";
+                title.innerText = "🎵 Suggested Song";
+                title.style.marginBottom = "15px";
+                title.style.color = "#a78bfa";
                 songsList.appendChild(title);
 
-                songs.forEach(song => {
+                const iframe = document.createElement("iframe");
+                iframe.src = videoUrl;
+                iframe.width = "100%";
+                iframe.height = "240";
+                iframe.frameBorder = "0";
+                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                iframe.allowFullscreen = true;
+                iframe.style.borderRadius = "14px";
+                iframe.style.boxShadow = "0 10px 25px -5px rgba(0, 0, 0, 0.3)";
 
-                    const item = document.createElement("div");
-                    item.className = "song-item";
-
-                    const titleSpan = document.createElement("span");
-                    titleSpan.className = "song-title";
-                    titleSpan.innerText = song.replace(".mp3", "");
-
-                    const audio = document.createElement("audio");
-                    audio.controls = true;
-
-                    const src = document.createElement("source");
-                    src.src = `http://127.0.0.1:5000/music/${emotion.toLowerCase()}/${encodeURIComponent(song)}`;
-                    src.type = "audio/mpeg";
-
-                    audio.appendChild(src);
-
-                    // 🔥 AUTO PLAY FIRST SONG
-                    if (songs.indexOf(song) === 0) {
-                        audio.autoplay = true;
-                    }
-
-                    item.appendChild(titleSpan);
-                    item.appendChild(audio);
-
-                    songsList.appendChild(item);
-                });
+                songsList.appendChild(iframe);
 
                 songsList.classList.add("show");
 
