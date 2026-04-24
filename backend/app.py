@@ -23,7 +23,7 @@ def predict():
 
     emotion = predict_emotion(image)
 
-    video = None
+    videos = []
     if emotion and emotion not in ["Invalid image", "No face detected"]:
         # Find the links.txt file inside the correct emotion folder
         links_file = os.path.join(MUSIC_DIR, emotion.lower(), "links.txt")
@@ -34,19 +34,14 @@ def predict():
                 links = [line.strip() for line in f.readlines() if line.strip()]
             
             if links:
-                video = random.choice(links)
-                # Auto-play via URL param
-                if "?" in video:
-                    if "&autoplay=1" not in video:
-                        video += "&autoplay=1"
-                else:
-                    video += "?autoplay=1"
+                # Get up to 10 links
+                videos = links[:10]
 
-    print("DEBUG Returning video:", video)
+    print("DEBUG Returning videos:", videos)
     
     return jsonify({
         "emotion": emotion,
-        "video": video
+        "videos": videos
     })
 
 if __name__ == '__main__':

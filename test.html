@@ -498,7 +498,7 @@
                     const data = await response.json();
 
                     setTimeout(() => {
-                        displayResult(data.emotion, data.video);
+                        displayResult(data.emotion, data.videos);
                         setUIState(false);
                     }, 500);
 
@@ -512,7 +512,7 @@
             }, "image/jpeg", 0.9);
         }
 
-        function displayResult(emotion, videoUrl) {
+        function displayResult(emotion, videos) {
             const emojiEl = document.getElementById("result-emoji");
 
             // reset animation
@@ -529,26 +529,34 @@
             const songsList = document.getElementById("songs-list");
             songsList.innerHTML = "";
 
-            if (videoUrl) {
+            if (videos && videos.length > 0) {
 
                 const title = document.createElement("h3");
-                title.innerText = "🎵 Suggested Song";
+                title.innerText = "🎵 Suggested Songs (Select to Play)";
                 title.style.marginBottom = "15px";
                 title.style.color = "#a78bfa";
                 songsList.appendChild(title);
 
-                const iframe = document.createElement("iframe");
-                iframe.src = videoUrl;
-                iframe.width = "100%";
-                iframe.height = "240";
-                iframe.frameBorder = "0";
-                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                iframe.allowFullscreen = true;
-                iframe.style.borderRadius = "14px";
-                iframe.style.boxShadow = "0 10px 25px -5px rgba(0, 0, 0, 0.3)";
+                const playerContainer = document.createElement("div");
+                playerContainer.id = "player-container";
+                songsList.appendChild(playerContainer);
 
-                songsList.appendChild(iframe);
+                const songOptions = document.createElement("div");
+                songOptions.style.display = "flex";
+                songOptions.style.flexDirection = "column";
+                songOptions.style.gap = "8px";
+                songOptions.style.marginTop = "15px";
 
+                videos.forEach((videoUrl, index) => {
+                    const item = document.createElement("div");
+                    item.className = "song-item";
+                    item.style.cursor = "pointer";
+                    item.innerHTML = `<span class="song-title" style="max-width: 100%;">Song Option ${index + 1}</span><span style="font-size: 0.8rem; background: var(--primary); padding: 4px 8px; border-radius: 6px;">▶ Play</span>`;
+                    item.onclick = () => playVideo(videoUrl, playerContainer);
+                    songOptions.appendChild(item);
+                });
+
+                songsList.appendChild(songOptions);
                 songsList.classList.add("show");
 
                 // Scroll to top of songs list slightly
@@ -556,6 +564,32 @@
                     songsList.scrollTop = 0;
                 }, 100);
             }
+        }
+
+        function playVideo(videoUrl, container) {
+            container.innerHTML = "";
+            const iframe = document.createElement("iframe");
+            
+            // Auto-play via URL param
+            let finalUrl = videoUrl;
+            if (finalUrl.includes("?")) {
+                if (!finalUrl.includes("&autoplay=1")) {
+                    finalUrl += "&autoplay=1";
+                }
+            } else {
+                finalUrl += "?autoplay=1";
+            }
+
+            iframe.src = finalUrl;
+            iframe.width = "100%";
+            iframe.height = "240";
+            iframe.frameBorder = "0";
+            iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+            iframe.allowFullscreen = true;
+            iframe.style.borderRadius = "14px";
+            iframe.style.boxShadow = "0 10px 25px -5px rgba(0, 0, 0, 0.3)";
+            
+            container.appendChild(iframe);
         }
     </script>
 </body>
