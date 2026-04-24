@@ -548,10 +548,29 @@
                 songOptions.style.marginTop = "15px";
 
                 videos.forEach((videoUrl, index) => {
+                    let songName = `Song Option ${index + 1}`;
+                    try {
+                        const urlObj = new URL(videoUrl);
+                        if (urlObj.searchParams.has('list')) {
+                            // Extract title from 'list' param
+                            songName = urlObj.searchParams.get('list');
+                            // Clean up common keywords to make the name look better
+                            songName = songName.replace(/full song lyrics/i, '')
+                                .replace(/full song/i, '')
+                                .replace(/Title Track/i, '')
+                                .replace(/Theme/i, '')
+                                .trim();
+                        } else if (urlObj.searchParams.has('v')) {
+                            songName = `Song Option ${index + 1} (${urlObj.searchParams.get('v')})`;
+                        }
+                    } catch (e) {
+                        // ignore invalid urls
+                    }
+
                     const item = document.createElement("div");
                     item.className = "song-item";
                     item.style.cursor = "pointer";
-                    item.innerHTML = `<span class="song-title" style="max-width: 100%;">Song Option ${index + 1}</span><span style="font-size: 0.8rem; background: var(--primary); padding: 4px 8px; border-radius: 6px;">▶ Play</span>`;
+                    item.innerHTML = `<span class="song-title" style="max-width: 100%;">${songName}</span><span style="font-size: 0.8rem; background: var(--primary); padding: 4px 8px; border-radius: 6px;">▶ Play</span>`;
                     item.onclick = () => playVideo(videoUrl, playerContainer);
                     songOptions.appendChild(item);
                 });
@@ -569,7 +588,7 @@
         function playVideo(videoUrl, container) {
             container.innerHTML = "";
             const iframe = document.createElement("iframe");
-            
+
             // Auto-play via URL param
             let finalUrl = videoUrl;
             if (finalUrl.includes("?")) {
@@ -588,7 +607,7 @@
             iframe.allowFullscreen = true;
             iframe.style.borderRadius = "14px";
             iframe.style.boxShadow = "0 10px 25px -5px rgba(0, 0, 0, 0.3)";
-            
+
             container.appendChild(iframe);
         }
     </script>
